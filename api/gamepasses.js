@@ -1,14 +1,15 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
-    const { gameId } = req.query;
+    const gameId = req.query.gameId;
 
     if (!gameId) {
       return res.status(400).json({ error: "Missing gameId" });
     }
 
-    const url = `https://www.pekora.zip/apisite/games/v1/games/${encodeURIComponent(
-      gameId
-    )}/game-passes?sortOrder=Asc&limit=100`;
+    const url =
+      "https://www.pekora.zip/apisite/games/v1/games/" +
+      encodeURIComponent(gameId) +
+      "/game-passes?sortOrder=Asc&limit=100";
 
     const response = await fetch(url, {
       headers: {
@@ -26,4 +27,4 @@ export default async function handler(req, res) {
       details: String(err)
     });
   }
-}
+};
