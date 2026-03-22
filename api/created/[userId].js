@@ -1,4 +1,4 @@
-import { getUserCreatedItems } from '../../assets';
+const { getUserCreatedItems } = require('../../assets');
 
 export default async function handler(req, res) {
     const { userId } = req.query;
@@ -11,6 +11,7 @@ export default async function handler(req, res) {
         const items = await getUserCreatedItems(userId);
         res.status(200).json(items);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch created items" });
+        console.error(error);
+        res.status(500).json({ error: "Failed to fetch" });
     }
 }
