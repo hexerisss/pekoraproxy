@@ -1,10 +1,14 @@
-export async function getUserCreatedItems(userId) {
+// assets.js — CommonJS version (Vercel-safe)
+async function getUserCreatedItems(userId) {
     let cursor = "";
     const created = [];
 
     do {
         const res = await fetch(`https://www.pekora.zip/users/inventory/list-json?userId=${userId}&assetTypeId=2,11,12&cursor=${cursor}&itemsPerPage=100`);
+        if (!res.ok) break;
+        
         const json = await res.json();
+        if (!json.data) break;
 
         for (const item of json.data) {
             if (item.creatorTargetId === parseInt(userId) && item.creatorType === "User") {
@@ -17,3 +21,5 @@ export async function getUserCreatedItems(userId) {
 
     return created;
 }
+
+module.exports = { getUserCreatedItems };
