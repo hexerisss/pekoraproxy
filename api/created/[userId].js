@@ -7,29 +7,36 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "Missing userId" });
     }
 
-    const url = `https://www.pekora.zip/users/inventory/list-json?userId=${encodeURIComponent(userId)}&assetTypeId=2,11,12&cursor=${encodeURIComponent(cursor)}&itemsPerPage=100`;
+    // Type 19 = T-Shirts, 11 = Shirts, 12 = Pants
+    // Fetch all three types
+    const types = [2, 11, 12]; // Updated: 2 for T-shirts (not 19)
+    let allItems = [];
 
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0"
-      }
-    });
+    for (const type of types) {
+      const url = `https://www.pekora.zip/apisite/economy/v2/users/${encodeURIComponent(userId)}/inventory?type=${type}&cursor=${encodeURIComponent(cursor)}&limit=100`;
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: "Upstream failed" });
+      const response = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0"
+        }
+      });
+
+      if (!response.ok) continue; // Skip failed types
+
+      const json = await response.json();
+      
+      // Filter to only items created by this user
+      const created = (json.data || []).filter(item => 
+        item.creatorTargetId === parseInt(userId) && item.creatorType === "User"
+      );
+
+      allItems = allItems.concat(created);
     }
-
-    const json = await response.json();
-    
-    // Filter to only items created by this user
-    const created = (json.data || []).filter(item => 
-      item.creatorTargetId === parseInt(userId) && item.creatorType === "User"
-    );
 
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.status(200).json({
-      data: created,
-      nextPageCursor: json.nextPageCursor || null
+      data: allItems,
+      count: allItems.length
     });
 
   } catch (err) {
