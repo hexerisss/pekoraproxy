@@ -1,4 +1,4 @@
-async function getCreatedItemsOnly(userId) {
+export async function getUserCreatedItems(userId) {
     let cursor = "";
     const created = [];
 
