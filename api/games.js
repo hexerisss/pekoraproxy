@@ -1,14 +1,17 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   try {
-    const { userId, cursor = "" } = req.query;
+    const userId = req.query.userId;
+    const cursor = req.query.cursor || "";
 
     if (!userId) {
       return res.status(400).json({ error: "Missing userId" });
     }
 
-    const url = `https://www.pekora.zip/apisite/games/v2/users/${encodeURIComponent(
-      userId
-    )}/games?accessFilter=Public&limit=50&cursor=${encodeURIComponent(cursor)}`;
+    const url =
+      "https://www.pekora.zip/apisite/games/v2/users/" +
+      encodeURIComponent(userId) +
+      "/games?accessFilter=Public&limit=50&cursor=" +
+      encodeURIComponent(cursor);
 
     const response = await fetch(url, {
       headers: {
@@ -26,4 +29,4 @@ export default async function handler(req, res) {
       details: String(err)
     });
   }
-}
+};
